@@ -2,7 +2,7 @@ from multiprocessing.spawn import prepare
 import os
 import json
 
-from datasets import load_dataset, Value
+from datasets import load_dataset, Value, Dataset
 from torch.utils.data import Dataset, DataLoader
 from transformers import PreTrainedTokenizerBase, default_data_collator
 
@@ -54,6 +54,10 @@ def get_dataset(dataset_name, metadata=False, synthetic_train_path=None):
         dataset['valid'] = dataset['validation']
         del(dataset['validation'])
         dataset = process_wmt14_dataset(dataset, 'en-en')
+    elif dataset_name == 'c4':
+        dataset = load_dataset('Bary/c4-sentences-2M')
+        dataset = process_c4_dataset(dataset)
+
     else:
         raise NotImplementedError
     return dataset
@@ -86,6 +90,15 @@ def process_xsum_dataset(dataset):
         return {'text': PreTrainedTokenizerBase.clean_up_tokenization(example["summary"].strip()), 'context':PreTrainedTokenizerBase.clean_up_tokenization(example["document"].strip())}
     dataset = dataset.map(process_xsum_text, remove_columns=['summary', 'document', 'id'])
     dataset = dataset.shuffle(seed=42)
+    return dataset
+
+def process_c4_dataset(dataset):
+    def process_c4_text(example):
+        return {'text': PreTrainedTokenizerBase.clean_up_tokenization(example["text"].strip())}
+    dataset = dataset.map(process_c4_text, remove_columns=['text'])
+    dataset = dataset.shuffle(seed=42)
+    dataset = dataset['train'].train_test_split(test_size=1000, seed=42)
+    dataset['valid'] = dataset['test']
     return dataset
 
 def process_qqp_dataset(dataset):
