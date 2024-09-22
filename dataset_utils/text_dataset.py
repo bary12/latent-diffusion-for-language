@@ -112,7 +112,7 @@ def process_c4_dataset(dataset):
         yield from iterable_ds
     dataset = Dataset.from_generator(partial(gen_from_iterable_dataset, dataset), features=dataset.features)
     dataset = dataset.shuffle(seed=42)
-    dataset = dataset.train_test_split(test_size=1000, seed=42)
+    dataset = dataset.train_test_split(test_size=32, seed=42)
     dataset['valid'] = dataset['test']
     return dataset
 
