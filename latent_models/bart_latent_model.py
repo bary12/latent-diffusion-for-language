@@ -18,7 +18,15 @@ class BARTForConditionalGenerationLatent(BartForConditionalGeneration):
         self.dim_ae = dim_ae
         self.l2_normalize_latents = l2_normalize_latents
 
-        self.perceiver_ae = PerceiverAutoEncoder(dim_lm=config.d_model, num_encoder_latents=num_encoder_latents, num_decoder_latents=num_decoder_latents, dim_ae=dim_ae, depth=num_layers, transformer_decoder=True, l2_normalize_latents=l2_normalize_latents)
+        self.perceiver_ae = PerceiverAutoEncoder(
+            dim_lm=config.d_model,
+            num_encoder_latents=num_encoder_latents,
+            num_decoder_latents=num_decoder_latents,
+            dim_ae=dim_ae,
+            depth=num_layers,
+            transformer_decoder=True,
+            l2_normalize_latents=l2_normalize_latents,
+            max_seq_len=512)
 
     def get_diffusion_latent(self, encoder_outputs, attention_mask):
         hidden_state = encoder_outputs[0]
