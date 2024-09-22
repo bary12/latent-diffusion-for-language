@@ -9,6 +9,9 @@ from transformers import PreTrainedTokenizerBase, default_data_collator
 from dataset_utils.denoising_collator import DataCollatorForBartDenoisingLM
 from dataset_utils.flan_collator import DataCollatorForFlanLM
 
+from functools import partial
+from datasets import Dataset
+
 def exists(x):
     return x is not None
 
@@ -54,10 +57,12 @@ def get_dataset(dataset_name, metadata=False, synthetic_train_path=None):
         dataset['valid'] = dataset['validation']
         del(dataset['validation'])
         dataset = process_wmt14_dataset(dataset, 'en-en')
-    elif dataset_name == 'c4':
+    elif dataset_name == 'c4_sentences':
         dataset = load_dataset('Bary/c4-sentences-2M')
+        dataset = process_c4_sentences_dataset(dataset)
+    elif dataset_name == 'c4':
+        dataset = load_dataset('allenai/c4', 'en', streaming=True)
         dataset = process_c4_dataset(dataset)
-
     else:
         raise NotImplementedError
     return dataset
@@ -92,10 +97,20 @@ def process_xsum_dataset(dataset):
     dataset = dataset.shuffle(seed=42)
     return dataset
 
-def process_c4_dataset(dataset):
+def process_c4_sentences_dataset(dataset):
     def process_c4_text(example):
         return {'text': PreTrainedTokenizerBase.clean_up_tokenization(example["text"].strip())}
     dataset = dataset.map(process_c4_text, remove_columns=['text'])
+    dataset = dataset.shuffle(seed=42)
+    dataset = dataset['train'].train_test_split(test_size=1000, seed=42)
+    dataset['valid'] = dataset['test']
+    return dataset
+
+def process_c4_dataset(dataset):
+    dataset = dataset.take(100000).remove_columns(['url', 'timestamp'])
+    def gen_from_iterable_dataset(iterable_ds):
+        yield from iterable_ds
+    dataset = Dataset.from_generator(gen_from_iterable_dataset, output_signature=dataset.output, args=[dataset])
     dataset = dataset.shuffle(seed=42)
     dataset = dataset['train'].train_test_split(test_size=1000, seed=42)
     dataset['valid'] = dataset['test']
