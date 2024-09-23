@@ -14,11 +14,6 @@ def compute_perplexity(all_texts_list, model_id='gpt2-large'):
     results = perplexity.compute(predictions=all_texts_list, model_id=model_id, device='cuda')
     return results['mean_perplexity']
 
-def compute_wordcount(all_texts_list):
-    wordcount = load("word_count")
-    wordcount = wordcount.compute(data=all_texts_list)
-    return wordcount['unique_words']
-
 def compute_diversity(all_texts_list):
     ngram_range = [2,3,4]
 

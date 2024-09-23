@@ -814,7 +814,6 @@ class Trainer(object):
             for k, v in ngram_metrics.items():
                 self.reference_dict[f"reference/test_{k}"] = v
             self.reference_dict[f"reference/test_memorization"] = evaluation.compute_memorization(test_subset, self.dataset['train']['text'])
-            self.reference_dict['reference/test_unique_wordcount'] = evaluation.compute_wordcount(test_subset)
             return
 
         val_subset = self.dataset['valid']['text'][:self.num_samples]
@@ -832,8 +831,6 @@ class Trainer(object):
         for k, v in ngram_metrics.items():
             self.reference_dict[f"reference/train_{k}"] = v
         self.reference_dict[f"reference/val_memorization"] = evaluation.compute_memorization(val_subset, self.dataset['train']['text'])
-        self.reference_dict['reference/train_unique_wordcount'] = evaluation.compute_wordcount(train_subset)
-        self.reference_dict['reference/val_unique_wordcounts'] = evaluation.compute_wordcount(val_subset)
         torch.cuda.empty_cache() 
             
             
@@ -914,7 +911,6 @@ class Trainer(object):
             class_id_prefix = f'cond{class_id}_' if exists(class_id) else ''
             file_utils.save_text_samples(all_texts_list, os.path.join(self.results_folder, f'{"eval-" if self.args.eval else ""}{f"eval{seed}-" if self.args.eval_test else ""}{class_id_prefix}{strategy}-sample-{milestone}.txt'))
             metrics[f"model/{strategy}/{class_id_prefix}perplexity"] = evaluation.compute_perplexity(all_texts_list)
-            metrics[f"model/{strategy}/{class_id_prefix}unique_wordcount"] = evaluation.compute_wordcount(all_texts_list)
             ngram_metrics = evaluation.compute_diversity(all_texts_list)
             for k, v in ngram_metrics.items():
                 metrics[f"model/{strategy}/{class_id_prefix}{k}"] = v
@@ -1131,7 +1127,6 @@ class Trainer(object):
                 metrics[f"model/seq2seq/{prefix}shuffled_{k}"] = v
 
             metrics[f"model/seq2seq/{prefix}perplexity"] = evaluation.compute_perplexity(pred_texts)
-            metrics[f"model/seq2seq/{prefix}unique_wordcount"] = evaluation.compute_wordcount(pred_texts)
             ngram_metrics = evaluation.compute_diversity(pred_texts)
             for k, v in ngram_metrics.items():
                 metrics[f"model/seq2seq/{prefix}{k}"] = v
