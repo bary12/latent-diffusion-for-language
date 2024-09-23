@@ -120,7 +120,7 @@ def process_c4_dataset(dataset):
     return dataset
 
 def process_instruct_dataset(dataset):
-    dataset = dataset.take(1032)
+    dataset = dataset.take(100000)
     def gen_from_iterable_dataset(iterable_ds):
         yield from iterable_ds
     dataset = Dataset.from_generator(partial(gen_from_iterable_dataset, dataset), features=dataset.features)
