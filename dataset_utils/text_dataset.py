@@ -63,6 +63,9 @@ def get_dataset(dataset_name, metadata=False, synthetic_train_path=None):
     elif dataset_name == 'c4':
         dataset = load_dataset('allenai/c4', 'en', streaming=True)
         dataset = process_c4_dataset(dataset)
+    elif dataset_name == 'instruct':
+        dataset = load_dataset('BAAI/Infinity-Instruct', '0625', 'train', streaming=True)
+        dataset = process_instruct_dataset(dataset)
     else:
         raise NotImplementedError
     return dataset
@@ -112,6 +115,27 @@ def process_c4_dataset(dataset):
         yield from iterable_ds
     dataset = Dataset.from_generator(partial(gen_from_iterable_dataset, dataset), features=dataset.features)
     dataset = dataset.shuffle(seed=42)
+    dataset = dataset.train_test_split(test_size=32, seed=42)
+    dataset['valid'] = dataset['test']
+    return dataset
+
+def process_instruct_dataset(dataset):
+    dataset = dataset.take(100000)
+    def gen_from_iterable_dataset(iterable_ds):
+        yield from iterable_ds
+    dataset = Dataset.from_generator(partial(gen_from_iterable_dataset, dataset), features=dataset.features)
+
+    dataset = dataset.shuffle(seed=42)
+    def parse_from_json(example):
+        conversations = example['conversations']
+        conversation = conversations[0]
+        user = conversation[0]['value']
+        assistant = conversation[1]['value']
+        return {
+            'text': assistant,
+            'context': user
+        }
+    dataset = dataset.map(parse_from_json, remove_columns=dataset.columns)
     dataset = dataset.train_test_split(test_size=32, seed=42)
     dataset['valid'] = dataset['test']
     return dataset
