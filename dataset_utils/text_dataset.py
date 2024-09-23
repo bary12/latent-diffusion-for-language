@@ -134,7 +134,7 @@ def process_instruct_dataset(dataset):
             'text': assistant,
             'context': user
         }
-    dataset = dataset.filter(has_what_we_need).map(parse_from_json, remove_columns=dataset.column_names)
+    dataset = dataset.map(parse_from_json, remove_columns=dataset.column_names)
     dataset = dataset.train_test_split(test_size=32, seed=42)
     dataset['valid'] = dataset['test']
     return dataset
