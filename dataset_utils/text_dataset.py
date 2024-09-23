@@ -126,6 +126,8 @@ def process_instruct_dataset(dataset):
     dataset = Dataset.from_generator(partial(gen_from_iterable_dataset, dataset), features=dataset.features)
 
     dataset = dataset.shuffle(seed=42)
+    def has_what_we_need(example):
+        return len(example['conversations']) > 0 and len(example['conversations'][0]) > 1
     def parse_from_json(example):
         conversations = example['conversations']
         conversation = conversations[0]
@@ -135,7 +137,7 @@ def process_instruct_dataset(dataset):
             'text': assistant,
             'context': user
         }
-    dataset = dataset.map(parse_from_json, remove_columns=dataset.column_names)
+    dataset = dataset.filter(has_what_we_need).map(parse_from_json, remove_columns=dataset.column_names)
     dataset = dataset.train_test_split(test_size=32, seed=42)
     dataset['valid'] = dataset['test']
     return dataset
