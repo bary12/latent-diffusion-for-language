@@ -64,7 +64,7 @@ def get_dataset(dataset_name, metadata=False, synthetic_train_path=None):
         dataset = load_dataset('allenai/c4', 'en', streaming=True)
         dataset = process_c4_dataset(dataset)
     elif dataset_name == 'instruct':
-        dataset = load_dataset('BAAI/Infinity-Instruct', '0625', 'train', streaming=True)
+        dataset = load_dataset('BAAI/Infinity-Instruct', '0625', split='train', streaming=True)
         dataset = process_instruct_dataset(dataset)
     else:
         raise NotImplementedError
