@@ -126,11 +126,8 @@ def process_instruct_dataset(dataset):
     dataset = Dataset.from_generator(partial(gen_from_iterable_dataset, dataset), features=dataset.features)
 
     dataset = dataset.shuffle(seed=42)
-    def has_what_we_need(example):
-        return len(example['conversations']) > 0 and len(example['conversations'][0]) > 1
     def parse_from_json(example):
-        conversations = example['conversations']
-        conversation = conversations[0]
+        conversation = example['conversations']
         user = conversation[0]['value']
         assistant = conversation[1]['value']
         return {
