@@ -68,8 +68,6 @@ def main(args):
         scale = args.scale,
     )
 
-    diffusion.compile()
-
     diffusion.cuda()
 
     trainer = Trainer(
