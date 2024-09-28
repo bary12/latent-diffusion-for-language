@@ -66,7 +66,7 @@ def main(args):
         train_prob_self_cond = args.train_prob_self_cond,
         seq2seq_unconditional_prob = args.seq2seq_unconditional_prob,
         scale = args.scale,
-    ).cuda()
+    ).cuda().compile()
 
     trainer = Trainer(
         args=args,
