@@ -1266,6 +1266,7 @@ class Trainer(object):
                         self.diffusion.train()
                     accelerator.log(logs, step=self.step)              
                     if self.step % self.save_and_sample_every == 0:
+                        self.save()
                         if self.seq2seq:
                             if 'wmt' in self.args.dataset_name:
                                 for guidance_strength in [1.0, 2.0]:
@@ -1278,7 +1279,6 @@ class Trainer(object):
                         if self.class_conditional:
                             for class_id in range(self.diffusion.diffusion_model.num_classes):
                                 self.sample(num_samples=100, class_id=class_id)
-                        self.save()
                         
                         self.diffusion.train() 
                 pbar.update(1)
