@@ -110,7 +110,7 @@ def process_c4_sentences_dataset(dataset):
     return dataset
 
 def process_c4_dataset(dataset):
-    dataset = dataset['train'].take(1000).remove_columns(['url', 'timestamp'])
+    dataset = dataset['train'].take(1050).remove_columns(['url', 'timestamp'])
     def gen_from_iterable_dataset(iterable_ds):
         yield from iterable_ds
     dataset = Dataset.from_generator(partial(gen_from_iterable_dataset, dataset), features=dataset.features)
